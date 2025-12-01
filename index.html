@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espacio Íntimo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        /* Variables y reset */
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #555;
+            --accent-color: #6A5ACD; /* Cambié a violeta más neutro */
+            --light-color: #f8f8f8;
+            --border-color: #e0e0e0;
+            --shadow: 0 5px 15px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
+            --success: #28a745;
+            --error: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--primary-color);
+            background-color: #fefefe;
+            line-height: 1.7;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Contenedor principal */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        /* Header minimalista */
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 30px;
+            position: relative;
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 1px;
+            background-color: var(--accent-color);
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 500;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+
+        /* Layout de diario */
+        .journal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        /* Columnas del diario */
+        .journal-column {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 50px;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .journal-column:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .column-header {
+            margin-bottom: 35px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        .column-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .column-title::before {
+            content: '';
+            display: block;
+            width: 30px;
+            height: 2px;
+            background-color: var(--accent-color);
+        }
+
+        .column-description {
+            color: var(--secondary-color);
+            margin-top: 10px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Áreas de texto */
+        .text-content {
+            flex: 1;
+            font-size: 1.15rem;
+            line-height: 1.9;
+            color: var(--primary-color);
+            overflow-y: auto;
+            padding-right: 10px;
+            white-space: pre-line;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .text-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .text-content::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 2px;
+        }
+
+        .editable-area {
+            flex: 1;
+            min-height: 400px;
+            font-size: 1.15rem;
+            line-height: 1.9;
+            padding: 15px 0;
+            border: none;
+            resize: none;
+            font-family: 'Inter', sans-serif;
+            color: var(--primary-color);
+            background: transparent;
+            outline: none;
+        }
+
+        .editable-area::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Estados de guardado */
+        .save-status {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.85rem;
+            padding: 5px 10px;
+            border-radius: 3px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: var(--transition);
+        }
+
+        .save-status.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .save-status.saving {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .save-status.saved {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .save-status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Sección de sorpresa */
+        .surprise-container {
+            text-align: center;
+            padding: 60px 40px;
+            background-color: var(--light-color);
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .surprise-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .surprise-text {
+            color: var(--secondary-color);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            font-size: 1.1rem;
+        }
+
+        /* Botón elegante */
+        .reveal-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 0.5px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reveal-btn:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .reveal-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Modal profesional */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 700px;
+            width: 100%;
+            padding: 60px;
+            position: relative;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--primary-color);
+        }
+
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .modal-subtitle {
+            color: var(--accent-color);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        /* Tarjeta de reserva */
+        .reservation-card {
+            background-color: var(--light-color);
+            padding: 40px;
+            margin: 40px 0;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .reservation-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+        }
+
+        .reservation-details {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: var(--primary-color);
+            min-width: 80px;
+        }
+
+        .detail-value {
+            color: var(--secondary-color);
+            flex: 1;
+        }
+
+        /* Footer */
+        .page-footer {
+            text-align: center;
+            padding-top: 40px;
+            margin-top: 60px;
+            border-top: 1px solid var(--border-color);
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1300px) {
+            .journal-grid {
+                grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .journal-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .journal-column {
+                min-height: 500px;
+                padding: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 30px 15px;
+            }
+            
+            .page-title {
+                font-size: 2.2rem;
+            }
+            
+            .journal-column {
+                padding: 30px;
+                min-height: 400px;
+            }
+            
+            .column-title {
+                font-size: 1.5rem;
+            }
+            
+            .text-content, .editable-area {
+                font-size: 1.05rem;
+            }
+            
+            .modal-content {
+                padding: 40px 30px;
+            }
+            
+            .modal-title {
+                font-size: 2rem;
+            }
+            
+            .surprise-container {
+                padding: 40px 20px;
+            }
+            
+            .save-status {
+                position: relative;
+                bottom: auto;
+                right: auto;
+                margin-top: 15px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .journal-column {
+                padding: 25px 20px;
+            }
+            
+            .column-title {
+                font-size: 1.3rem;
+            }
+            
+            .detail-item {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .detail-label {
+                min-width: auto;
+            }
+            
+            .reveal-btn {
+                padding: 16px 35px;
+                width: 100%;
+            }
+        }
+
+        /* Estados y utilidades */
+        .char-counter {
+            text-align: right;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Login modal */
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 50px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .login-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+
+        .login-btn:hover {
+            background-color: #5a4ac4;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-box">
+            <h2>Acceso al Diario</h2>
+            <p style="margin-bottom: 25px; color: var(--secondary-color);">Ingresa el código de acceso para continuar</p>
+            <input type="password" id="accessCode" placeholder="Código de acceso" maxlength="6">
+            <button class="login-btn" id="submitCode">Acceder</button>
+            <p id="loginError" style="color: var(--error); margin-top: 15px; display: none;">Código incorrecto</p>
+        </div>
+    </div>
+
+    <!-- Contenido principal (oculto hasta login) -->
+    <div class="main-container" id="mainContent" style="display: none;">
+        <header class="page-header">
+            <h1 class="page-title">Espacio Íntimo</h1>
+            <p class="page-subtitle">Un lugar privado para compartir pensamientos, emociones y confesiones</p>
+        </header>
+
+        <div class="journal-grid">
+            <!-- Columna 1: Mis palabras -->
+            <article class="journal-column">
+                <div class="column-header">
+                    <h2 class="column-title">Mis palabras para ti</h2>
+                    <p class="column-description">Lo que siento y necesito que sepas</p>
+                </div>
+                <div class="text-content" id="myText">
+A veces siento que últimamente nos hemos encontrado peleando más de lo que quisiéramos, y quiero que lo sepas desde lo más sincero de mí: a mí tampoco me gustan las peleas. No me gusta cuando estamos mal, no disfruto estar distante de vos, y no me siento nada bien cuando algo entre nosotros se rompe, aunque sea por un momento. Me duele porque yo te quiero, y porque todo lo que somos para mí vale demasiado.
+
+A veces me cuesta explicarte lo que siento y lo que me pasa por dentro, y sé que eso te confunde. Entiendo que para vos es difícil cuando no sabés qué me ocurre, y créeme que yo también me doy cuenta de ello. No ha sido fácil para ninguno de los dos, y aun así, aquí estoy, aquí seguimos… porque no quiero perderte.
+Porque lo que siento por ti es real, profundo y fuerte.
+
+Quiero que sepas que me duele saber que para vos esta relación a veces se hace dura, que sentís que hay cosas que te pesan, que te cuesta entenderme o que no sabés siempre qué hacer. Y aunque eso me rompa un poquito por dentro, lo entiendo. Entiendo que somos diferentes, que vemos algunas cosas desde lugares distintos, y que eso nos ha llevado a chocar. Pero aun así, no quiero que pienses que estás haciendo algo mal, ni quiero que lleves sobre tus hombros una carga que no te corresponde.
+
+Yo valoro tanto lo que haces por mí, valoro lo que sentís, lo que me das, cómo estás, cómo intentas, incluso cuando no sabés si estás haciéndolo bien o no. Valoro tus esfuerzos, tus detalles, tu manera de cuidarme, tu presencia, tu paciencia y hasta tus silencios. Sé que nada de esto ha sido sencillo, pero tampoco quiero que estemos mal por cosas que, si hablamos con el corazón abierto, podemos superar.
+
+No quiero que te dejes llevar por opiniones externas, no quiero que la voz de otros tenga más peso que lo que vivimos vos y yo. No quiero que el pasado afecte nuestro presente, ni que todo lo bonito que hemos construido se vea amenazado por momentos difíciles que, aunque duelan, no definen nuestra relación. Y no quiero que un día pienses que esto debe terminar solo porque no ha sido fácil. Lo valioso normalmente no lo es.
+
+A veces encuentro difícil expresar con palabras todo lo que siento cuando estoy contigo.
+Hay momentos en los que simplemente mirarte me llena de una paz que no conocía antes de tenerte en mi vida.
+
+Eres esa persona con la que puedo ser completamente yo mismo, sin máscaras ni pretensiones.
+Valoro cada conversación, cada silencio compartido, cada risa y cada mirada.
+En ti he encontrado no solo un compañero, sino un confidente, un aliado y mi lugar seguro.
+
+Aprecio especialmente la forma en que me escuchas, cómo respetas mis espacios y cómo celebras mis logros como si fueran tuyos.
+Tu apoyo incondicional me ha dado la fuerza para enfrentar desafíos que antes me parecían imposibles.
+
+Quiero que sepas que mi compromiso contigo es genuino. Estoy aquí no solo para los momentos felices, sino también para acompañarte cuando las cosas duelen, cuando cuesta, cuando ninguno de los dos sabe muy bien cómo hacerlo. Estoy para aprender contigo, para crecer, para equivocarnos y volver a levantarnos juntos. Tu felicidad es importante para mí, y trabajaré cada día para que nuestro espacio sea uno de respeto mutuo, comprensión y amor sincero.
+
+Gracias por ser quien eres.
+Gracias por elegirme cada día, incluso cuando las cosas no fluyen tan fácil.
+Gracias por intentar, por escuchar, por abrirte, por llorar, por reír, por seguir.
+
+No quiero perderte.
+No quiero que estemos mal.
+Quiero que sigamos construyendo algo bonito, verdadero y nuestro.
+Quiero que recordemos que lo que sentimos pesa más que cualquier dificultad.
+
+Y sobre todo, quiero que sepas que estoy bien contigo, que te quiero, que te elijo… y que aunque duela a veces saber que no siempre te sentís tan bien como yo quisiera, estoy aquí para caminar con vos, para mejorar, para comprenderte y para que, juntos, encontremos el punto donde ambos podamos respirar tranquilos otra vez.
+                </div>
+            </article>
+
+            <!-- Columna 2: Tu espacio -->
+            <article class="journal-column">
+                <div class="column-header">
+                    <h2 class="column-title">Tu espacio personal</h2>
+                    <p class="column-description">Escribe aquí libremente. Este espacio es solo para ti</p>
+                </div>
+                <textarea class="editable-area" id="hisText" placeholder="Puedes escribir lo que desees. No hay reglas, ni juicios, ni expectativas. Simplemente deja fluir tus pensamientos...
+
+• ¿Cómo te sientes en este momento?
+• ¿Hay algo que te preocupa o que te da miedo compartir?
+• ¿Qué sueños tienes para nosotros?
+• ¿En qué puedo apoyarte mejor?
+• ¿Qué momentos nuestros atesoras más?
+
+Este es tu espacio seguro. Todo lo que escribas se guardará automáticamente en la nube."></textarea>
+                <div class="char-counter">
+                    <span id="charCount">0</span> caracteres
+                    <div class="save-status" id="saveStatus"></div>
+                </div>
+            </article>
+        </div>
+
+        <section class="surprise-container">
+            <h2 class="surprise-title">Un encuentro especial</h2>
+            <p class="surprise-text">He preparado algo especial para que podamos compartir un momento único juntos. Cuando estés listo, puedes descubrir los detalles.</p>
+            <button class="reveal-btn" id="revealBtn">Descubrir planes</button>
+        </section>
+
+        <footer class="page-footer">
+            <p>Este espacio es privado y personal • Los textos se guardan automáticamente en la nube • <span id="currentDate"></span></p>
+        </footer>
+    </div>
+
+    <!-- Modal de reserva -->
+    <div class="modal-overlay" id="reservationModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeModal">&times;</button>
+            
+            <h2 class="modal-title">Planes confirmados</h2>
+            <p class="modal-subtitle">Un encuentro especial para reconectar</p>
+            
+            <p>He pensado que sería bueno salir de la rutina y dedicarnos un tiempo especial. Por eso he organizado algo que espero que disfrutemos ambos.</p>
+            
+            <div class="reservation-card">
+                <h3 class="reservation-title">Detalles de la reserva</h3>
+                <div class="reservation-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Lugar:</span>
+                        <span class="detail-value" id="resPlace">The Observatory - Restaurante con vista panorámica</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Fecha:</span>
+                        <span class="detail-value" id="resDate">Viernes, 28 de junio</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Hora:</span>
+                        <span class="detail-value" id="resTime">20:30 horas</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Notas:</span>
+                        <span class="detail-value">Reserva bajo mi nombre. Código de confirmación: INT-2806</span>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="margin-top: 30px;">No necesitas preparar nada especial. Solo tu presencia y la disposición para disfrutar de una velada tranquila y significativa.</p>
+            
+            <p style="margin-top: 40px; font-style: italic; text-align: center; color: #666;">
+                Con aprecio,<br>
+                <span style="color: var(--accent-color);">Tu novio</span>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // ==============================================
+        // CONFIGURACIÓN DE FIREBASE
+        // ==============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBy4Ga1J_x5hg9hv9Eb3lbPS5DpD_pifMs",
+            authDomain: "diary-db-3cdf8.firebaseapp.com",
+            projectId: "diary-db-3cdf8",
+            storageBucket: "diary-db-3cdf8.appspot.com",
+            messagingSenderId: "524731098074",
+            appId: "1:524731098074:web:b9cc4b726c9770347556e3",
+            measurementId: "G-Y4TTF9YFNH"
+        };
+        
+        // Código de acceso personalizable
+        const ACCESS_CODE = "123456";
+        
+        // ID del usuario
+        const USER_ID = "diario_pareja";
+
+        // ==============================================
+        // INICIALIZACIÓN DE FIREBASE
+        // ==============================================
+        let db;
+        let entriesRef;
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        console.log("Firebase inicializado");
+        
+        // Configurar reglas de Firestore (debes hacerlo manualmente en Firebase Console)
+        // Ve a Firestore Database -> Rules y pon:
+        /*
+        rules_version = '2';
+        service cloud.firestore {
+          match /databases/{database}/documents {
+            match /usuarios/{userId} {
+              allow read, write: if true;
+            }
+          }
+        }
+        */
+
+        // ==============================================
+        // VARIABLES GLOBALES
+        // ==============================================
+        let saveTimeout;
+        let currentEntryId = null;
+        let isLoggedIn = false;
+
+        // ==============================================
+        // FUNCIONES DE FIREBASE
+        // ==============================================
+        async function saveToFirebase(content) {
+            if (!isLoggedIn || !content.trim()) {
+                console.log("No guardando: no logueado o contenido vacío");
+                return;
+            }
+            
+            const saveStatus = document.getElementById('saveStatus');
+            saveStatus.textContent = "Guardando...";
+            saveStatus.className = "save-status saving visible";
+            
+            try {
+                console.log("Intentando guardar en Firebase...");
+                
+                const entryData = {
+                    content: content,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    date: new Date().toISOString().split('T')[0],
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: USER_ID
+                };
+                
+                console.log("Datos a guardar:", entryData);
+                
+                if (currentEntryId) {
+                    // Actualizar entrada existente
+                    console.log("Actualizando entrada:", currentEntryId);
+                    await entriesRef.doc(currentEntryId).update(entryData);
+                } else {
+                    // Crear nueva entrada
+                    console.log("Creando nueva entrada");
+                    const docRef = await entriesRef.add(entryData);
+                    currentEntryId = docRef.id;
+                    console.log("Nueva entrada creada con ID:", currentEntryId);
+                }
+                
+                saveStatus.textContent = "Guardado ✓";
+                saveStatus.className = "save-status saved visible";
+                console.log("Guardado exitoso");
+                
+                // Ocultar el mensaje después de 3 segundos
+                setTimeout(() => {
+                    saveStatus.classList.remove('visible');
+                }, 3000);
+                
+                return true;
+            } catch (error) {
+                console.error("Error guardando en Firebase:", error);
+                console.error("Detalles del error:", error.message, error.code);
+                saveStatus.textContent = "Error al guardar - " + error.code;
+                saveStatus.className = "save-status error visible";
+                
+                // Mostrar error específico
+                if (error.code === 'permission-denied') {
+                    alert("ERROR: Permisos denegados. Ve a Firebase Console -> Firestore -> Rules y cambia las reglas a: allow read, write: if true;");
+                }
+                
+                return false;
+            }
+        }
+
+        async function loadFromFirebase() {
+            if (!isLoggedIn) return;
+            
+            try {
+                console.log("Cargando datos de Firebase...");
+                
+                // Obtener la entrada más reciente
+                const snapshot = await entriesRef
+                    .orderBy('createdAt', 'desc')
+                    .limit(1)
+                    .get();
+                
+                console.log("Snapshot recibido:", snapshot.empty ? "vacío" : "con datos");
+                
+                if (!snapshot.empty) {
+                    const doc = snapshot.docs[0];
+                    currentEntryId = doc.id;
+                    const data = doc.data();
+                    
+                    console.log("Datos cargados:", data);
+                    
+                    const hisText = document.getElementById('hisText');
+                    hisText.value = data.content || '';
+                    updateCharCount();
+                    
+                    // Mostrar última fecha de modificación
+                    const lastUpdated = data.lastUpdated?.toDate();
+                    if (lastUpdated) {
+                        console.log("Última modificación:", lastUpdated.toLocaleString());
+                    }
+                } else {
+                    console.log("No hay entradas previas");
+                }
+            } catch (error) {
+                console.error("Error cargando desde Firebase:", error);
+                console.error("Detalles:", error.message, error.code);
+            }
+        }
+
+        function setupFirebaseListener() {
+            if (!isLoggedIn) return;
+            
+            // Escuchar cambios en tiempo real
+            entriesRef.onSnapshot((snapshot) => {
+                console.log("Datos actualizados en tiempo real");
+            }, (error) => {
+                console.error("Error en listener de Firebase:", error);
+            });
+        }
+
+        // ==============================================
+        // FUNCIONES DE LA APLICACIÓN
+        // ==============================================
+        function updateCharCount() {
+            const hisText = document.getElementById('hisText');
+            const charCount = document.getElementById('charCount');
+            const count = hisText.value.length;
+            charCount.textContent = count.toLocaleString('es-ES');
+        }
+
+        function debounceSave() {
+            clearTimeout(saveTimeout);
+            
+            const hisText = document.getElementById('hisText');
+            const content = hisText.value;
+            
+            // Solo guardar si hay contenido y está logueado
+            if (content.trim() && isLoggedIn) {
+                console.log("Programando guardado...");
+                saveTimeout = setTimeout(() => {
+                    saveToFirebase(content);
+                }, 1500);
+            }
+        }
+
+        // ==============================================
+        // LOGIN Y CONFIGURACIÓN INICIAL
+        // ==============================================
+        function checkLogin() {
+            const savedLogin = localStorage.getItem('diario_login');
+            if (savedLogin === ACCESS_CODE) {
+                completeLogin();
+            } else {
+                document.getElementById('loginModal').style.display = 'flex';
+            }
+        }
+
+        function completeLogin() {
+            isLoggedIn = true;
+            
+            // Inicializar referencia a Firestore
+            entriesRef = db.collection('usuarios').doc(USER_ID).collection('entradas');
+            
+            // Mostrar contenido principal
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            
+            // Cargar datos existentes
+            loadFromFirebase();
+            setupFirebaseListener();
+            
+            // Configurar fecha actual
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('es-ES', options);
+            
+            // Mostrar mensaje de bienvenida
+            setTimeout(() => {
+                alert("Bienvenido a nuestro espacio íntimo. Todo lo que escribas aquí se guardará automáticamente en la nube, así podré leerlo después. Este es un lugar seguro para expresarte libremente.");
+            }, 500);
+        }
+
+        // ==============================================
+        // EVENT LISTENERS
+        // ==============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar login
+            document.getElementById('submitCode').addEventListener('click', function() {
+                const inputCode = document.getElementById('accessCode').value;
+                const errorElement = document.getElementById('loginError');
+                
+                if (inputCode === ACCESS_CODE) {
+                    localStorage.setItem('diario_login', ACCESS_CODE);
+                    errorElement.style.display = 'none';
+                    completeLogin();
+                } else {
+                    errorElement.style.display = 'block';
+                    document.getElementById('accessCode').value = '';
+                }
+            });
+            
+            document.getElementById('accessCode').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('submitCode').click();
+                }
+            });
+            
+            // Configurar área de texto
+            const hisText = document.getElementById('hisText');
+            hisText.addEventListener('input', function() {
+                updateCharCount();
+                debounceSave();
+            });
+            
+            // Guardar inmediatamente al perder foco
+            hisText.addEventListener('blur', function() {
+                if (hisText.value.trim() && isLoggedIn) {
+                    saveToFirebase(hisText.value);
+                }
+            });
+            
+            // Configurar botón de sorpresa
+            document.getElementById('revealBtn').addEventListener('click', function() {
+                document.getElementById('reservationModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Configurar cierre de modal
+            document.getElementById('closeModal').addEventListener('click', function() {
+                document.getElementById('reservationModal').style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            document.getElementById('reservationModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Configurar datos de reserva
+            const reservationDetails = {
+                place: "The Observatory - Restaurante con vista panorámica",
+                date: "Viernes, 28 de junio",
+                time: "20:30 horas"
+            };
+            
+            document.getElementById('resPlace').textContent = reservationDetails.place;
+            document.getElementById('resDate').textContent = reservationDetails.date;
+            document.getElementById('resTime').textContent = reservationDetails.time;
+            
+            // Placeholder animado
+            const placeholderText = hisText.placeholder;
+            let typingIndex = 0;
+            
+            function typePlaceholder() {
+                if (typingIndex < placeholderText.length && hisText.value === '' && isLoggedIn) {
+                    hisText.placeholder = placeholderText.substring(0, typingIndex + 1);
+                    typingIndex++;
+                    setTimeout(typePlaceholder, 30);
+                }
+            }
+            
+            // Iniciar aplicación
+            checkLogin();
+            
+            // Iniciar placeholder después del login
+            setTimeout(() => {
+                if (isLoggedIn && hisText.value === '') {
+                    typePlaceholder();
+                }
+            }, 1000);
+        });
+
+        // ==============================================
+        // FUNCIONES DE DEPURACIÓN
+        // ==============================================
+        async function debugFirebase() {
+            try {
+                console.log("=== DEBUG FIREBASE ===");
+                console.log("Usuario ID:", USER_ID);
+                console.log("Configuración Firebase:", firebaseConfig);
+                
+                const userRef = db.collection('usuarios').doc(USER_ID);
+                const userDoc = await userRef.get();
+                
+                if (userDoc.exists) {
+                    console.log("✅ Usuario existe en Firebase");
+                    
+                    const entries = await entriesRef.get();
+                    console.log(`📝 Número de entradas: ${entries.size}`);
+                    
+                    entries.forEach(doc => {
+                        console.log(`📄 Entrada ${doc.id}:`, doc.data());
+                    });
+                } else {
+                    console.log("⚠️ Usuario NO existe en Firebase - se creará al guardar");
+                }
+                
+                // Probar guardado manual
+                const testData = {
+                    content: "Texto de prueba " + new Date().toLocaleTimeString(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    date: new Date().toISOString().split('T')[0]
+                };
+                
+                console.log("📤 Enviando prueba...");
+                const testRef = await entriesRef.add(testData);
+                console.log("✅ Prueba exitosa. ID:", testRef.id);
+                
+            } catch (error) {
+                console.error("❌ Error en debug:", error);
+                console.error("Código:", error.code);
+                console.error("Mensaje:", error.message);
+            }
+        }
+
+        // Para depurar, abre la consola (F12) y escribe: debugFirebase()
+        window.debugFirebase = debugFirebase;
+        
+        // También puedes probar con: testConnection()
+        window.testConnection = async function() {
+            try {
+                console.log("🔍 Probando conexión a Firebase...");
+                const testRef = db.collection('test').doc('connection');
+                await testRef.set({ test: true, timestamp: new Date() });
+                console.log("✅ Conexión exitosa");
+                await testRef.delete();
+            } catch (error) {
+                console.error("❌ Error de conexión:", error);
+            }
+        };
+    </script>
+</body>
+</html>
