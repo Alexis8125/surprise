@@ -13,7 +13,7 @@
         :root {
             --primary-color: #1a1a1a;
             --secondary-color: #555;
-            --accent-color: #6A5ACD; /* Cambié a violeta más neutro */
+            --accent-color: #6A5ACD;
             --light-color: #f8f8f8;
             --border-color: #e0e0e0;
             --shadow: 0 5px 15px rgba(0,0,0,0.05);
@@ -35,6 +35,7 @@
             line-height: 1.7;
             padding: 0;
             margin: 0;
+            overflow-x: hidden;
         }
 
         /* Contenedor principal */
@@ -43,6 +44,7 @@
             margin: 0 auto;
             padding: 40px 20px;
             min-height: 100vh;
+            width: 100%;
         }
 
         /* Header minimalista */
@@ -51,6 +53,7 @@
             margin-bottom: 60px;
             padding-bottom: 30px;
             position: relative;
+            width: 100%;
         }
 
         .page-header::after {
@@ -66,40 +69,44 @@
 
         .page-title {
             font-family: 'Playfair Display', serif;
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 3rem);
             font-weight: 500;
             letter-spacing: -0.5px;
             margin-bottom: 10px;
             color: var(--primary-color);
+            line-height: 1.2;
         }
 
         .page-subtitle {
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 3vw, 1.1rem);
             color: var(--secondary-color);
-            max-width: 600px;
+            max-width: min(600px, 90vw);
             margin: 0 auto;
             font-weight: 300;
+            line-height: 1.5;
         }
 
         /* Layout de diario */
         .journal-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
-            gap: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 600px), 1fr));
+            gap: clamp(20px, 4vw, 40px);
             margin-bottom: 60px;
+            width: 100%;
         }
 
         /* Columnas del diario */
         .journal-column {
             background: white;
             border: 1px solid var(--border-color);
-            padding: 50px;
-            min-height: 600px;
+            padding: clamp(25px, 5vw, 50px);
+            min-height: min(600px, 70vh);
             display: flex;
             flex-direction: column;
             box-shadow: var(--shadow);
             transition: var(--transition);
             position: relative;
+            width: 100%;
         }
 
         .journal-column:hover {
@@ -107,46 +114,50 @@
         }
 
         .column-header {
-            margin-bottom: 35px;
+            margin-bottom: clamp(20px, 4vw, 35px);
             border-bottom: 2px solid var(--border-color);
-            padding-bottom: 20px;
+            padding-bottom: clamp(10px, 3vw, 20px);
+            width: 100%;
         }
 
         .column-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
             font-weight: 500;
             color: var(--primary-color);
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: clamp(10px, 2vw, 15px);
+            line-height: 1.3;
         }
 
         .column-title::before {
             content: '';
             display: block;
-            width: 30px;
+            width: clamp(20px, 4vw, 30px);
             height: 2px;
             background-color: var(--accent-color);
+            flex-shrink: 0;
         }
 
         .column-description {
             color: var(--secondary-color);
             margin-top: 10px;
-            font-size: 1rem;
-            line-height: 1.6;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            line-height: 1.5;
         }
 
         /* Áreas de texto */
         .text-content {
             flex: 1;
-            font-size: 1.15rem;
-            line-height: 1.9;
+            font-size: clamp(1rem, 2vw, 1.15rem);
+            line-height: 1.8;
             color: var(--primary-color);
             overflow-y: auto;
             padding-right: 10px;
             white-space: pre-line;
             font-family: 'Inter', sans-serif;
+            width: 100%;
         }
 
         .text-content::-webkit-scrollbar {
@@ -160,9 +171,9 @@
 
         .editable-area {
             flex: 1;
-            min-height: 400px;
-            font-size: 1.15rem;
-            line-height: 1.9;
+            min-height: min(400px, 50vh);
+            font-size: clamp(1rem, 2vw, 1.15rem);
+            line-height: 1.8;
             padding: 15px 0;
             border: none;
             resize: none;
@@ -170,6 +181,7 @@
             color: var(--primary-color);
             background: transparent;
             outline: none;
+            width: 100%;
         }
 
         .editable-area::placeholder {
@@ -182,12 +194,13 @@
             position: absolute;
             bottom: 20px;
             right: 20px;
-            font-size: 0.85rem;
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
             padding: 5px 10px;
             border-radius: 3px;
             opacity: 0;
             transform: translateY(10px);
             transition: var(--transition);
+            white-space: nowrap;
         }
 
         .save-status.visible {
@@ -216,24 +229,27 @@
         /* Sección de sorpresa */
         .surprise-container {
             text-align: center;
-            padding: 60px 40px;
+            padding: clamp(30px, 5vw, 60px) clamp(20px, 4vw, 40px);
             background-color: var(--light-color);
             margin-top: 40px;
             border-top: 1px solid var(--border-color);
+            width: 100%;
         }
 
         .surprise-title {
             font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
-            margin-bottom: 20px;
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            margin-bottom: clamp(15px, 3vw, 20px);
             color: var(--primary-color);
+            line-height: 1.3;
         }
 
         .surprise-text {
             color: var(--secondary-color);
-            max-width: 600px;
-            margin: 0 auto 40px;
-            font-size: 1.1rem;
+            max-width: min(600px, 90vw);
+            margin: 0 auto clamp(25px, 4vw, 40px);
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            line-height: 1.6;
         }
 
         /* Botón elegante */
@@ -241,8 +257,8 @@
             background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 18px 45px;
-            font-size: 1.1rem;
+            padding: clamp(14px, 3vw, 18px) clamp(30px, 5vw, 45px);
+            font-size: clamp(1rem, 2vw, 1.1rem);
             cursor: pointer;
             transition: var(--transition);
             letter-spacing: 0.5px;
@@ -250,6 +266,10 @@
             font-weight: 400;
             position: relative;
             overflow: hidden;
+            border-radius: 4px;
+            min-width: min-content;
+            width: auto;
+            display: inline-block;
         }
 
         .reveal-btn:hover {
@@ -257,13 +277,7 @@
             transform: translateY(-2px);
         }
 
-        .reveal-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        /* Modal profesional */
+        /* Modal profesional - COMPLETAMENTE RESPONSIVE */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -275,8 +289,10 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: clamp(10px, 3vw, 20px);
             animation: fadeIn 0.4s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         @keyframes fadeIn {
@@ -286,11 +302,16 @@
 
         .modal-content {
             background: white;
-            max-width: 700px;
+            max-width: min(700px, 95vw);
             width: 100%;
-            padding: 60px;
+            padding: clamp(25px, 5vw, 60px) clamp(20px, 4vw, 50px);
             position: relative;
             animation: slideUp 0.4s ease;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin: auto;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         @keyframes slideUp {
@@ -300,64 +321,75 @@
 
         .close-modal {
             position: absolute;
-            top: 25px;
-            right: 25px;
+            top: clamp(15px, 3vw, 25px);
+            right: clamp(15px, 3vw, 25px);
             background: none;
             border: none;
-            font-size: 1.8rem;
+            font-size: clamp(1.5rem, 3vw, 1.8rem);
             color: var(--secondary-color);
             cursor: pointer;
-            width: 40px;
-            height: 40px;
+            width: clamp(35px, 6vw, 40px);
+            height: clamp(35px, 6vw, 40px);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: var(--transition);
+            border-radius: 50%;
+            z-index: 10;
         }
 
         .close-modal:hover {
             color: var(--primary-color);
+            background-color: var(--border-color);
         }
 
         .modal-title {
             font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
-            margin-bottom: 15px;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            margin-bottom: clamp(10px, 2vw, 15px);
             color: var(--primary-color);
+            line-height: 1.2;
+            padding-right: 40px;
         }
 
         .modal-subtitle {
             color: var(--accent-color);
-            margin-bottom: 30px;
-            font-size: 1.1rem;
+            margin-bottom: clamp(20px, 4vw, 30px);
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            line-height: 1.4;
         }
 
         /* Tarjeta de reserva */
         .reservation-card {
             background-color: var(--light-color);
-            padding: 40px;
-            margin: 40px 0;
+            padding: clamp(25px, 4vw, 40px);
+            margin: clamp(25px, 4vw, 40px) 0;
             border-left: 4px solid var(--accent-color);
+            width: 100%;
         }
 
         .reservation-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1.6rem;
-            margin-bottom: 30px;
+            font-size: clamp(1.3rem, 3vw, 1.6rem);
+            margin-bottom: clamp(20px, 4vw, 30px);
             color: var(--primary-color);
+            line-height: 1.3;
         }
 
         .reservation-details {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: clamp(15px, 3vw, 20px);
+            width: 100%;
         }
 
         .detail-item {
             display: flex;
             align-items: flex-start;
-            padding: 15px 0;
+            padding: clamp(10px, 2vw, 15px) 0;
             border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .detail-item:last-child {
@@ -367,12 +399,15 @@
         .detail-label {
             font-weight: 500;
             color: var(--primary-color);
-            min-width: 80px;
+            min-width: min(80px, 100%);
+            flex-shrink: 0;
         }
 
         .detail-value {
             color: var(--secondary-color);
             flex: 1;
+            min-width: min(200px, 100%);
+            line-height: 1.5;
         }
 
         /* Footer */
@@ -382,107 +417,8 @@
             margin-top: 60px;
             border-top: 1px solid var(--border-color);
             color: var(--secondary-color);
-            font-size: 0.95rem;
-        }
-
-        /* Responsive design */
-        @media (max-width: 1300px) {
-            .journal-grid {
-                grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            }
-        }
-
-        @media (max-width: 1100px) {
-            .journal-grid {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-            
-            .journal-column {
-                min-height: 500px;
-                padding: 40px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .main-container {
-                padding: 30px 15px;
-            }
-            
-            .page-title {
-                font-size: 2.2rem;
-            }
-            
-            .journal-column {
-                padding: 30px;
-                min-height: 400px;
-            }
-            
-            .column-title {
-                font-size: 1.5rem;
-            }
-            
-            .text-content, .editable-area {
-                font-size: 1.05rem;
-            }
-            
-            .modal-content {
-                padding: 40px 30px;
-            }
-            
-            .modal-title {
-                font-size: 2rem;
-            }
-            
-            .surprise-container {
-                padding: 40px 20px;
-            }
-            
-            .save-status {
-                position: relative;
-                bottom: auto;
-                right: auto;
-                margin-top: 15px;
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .page-title {
-                font-size: 1.8rem;
-            }
-            
-            .journal-column {
-                padding: 25px 20px;
-            }
-            
-            .column-title {
-                font-size: 1.3rem;
-            }
-            
-            .detail-item {
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .detail-label {
-                min-width: auto;
-            }
-            
-            .reveal-btn {
-                padding: 16px 35px;
-                width: 100%;
-            }
-        }
-
-        /* Estados y utilidades */
-        .char-counter {
-            text-align: right;
-            color: var(--secondary-color);
-            font-size: 0.9rem;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid var(--border-color);
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            width: 100%;
         }
 
         /* Login modal */
@@ -497,38 +433,41 @@
             z-index: 2000;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: clamp(10px, 3vw, 20px);
+            overflow-y: auto;
         }
 
         .login-box {
             background: white;
-            padding: 50px;
+            padding: clamp(30px, 5vw, 50px);
             border-radius: 10px;
-            max-width: 400px;
+            max-width: min(400px, 90vw);
             width: 100%;
             text-align: center;
+            margin: auto;
         }
 
         .login-box h2 {
-            margin-bottom: 20px;
+            margin-bottom: clamp(15px, 3vw, 20px);
             color: var(--primary-color);
+            font-size: clamp(1.5rem, 4vw, 1.8rem);
         }
 
         .login-box input {
             width: 100%;
-            padding: 12px 15px;
-            margin-bottom: 15px;
+            padding: clamp(10px, 2vw, 12px) clamp(12px, 2vw, 15px);
+            margin-bottom: clamp(12px, 2vw, 15px);
             border: 1px solid var(--border-color);
             border-radius: 5px;
-            font-size: 1rem;
+            font-size: clamp(0.95rem, 2vw, 1rem);
         }
 
         .login-btn {
             background-color: var(--accent-color);
             color: white;
             border: none;
-            padding: 12px 30px;
-            font-size: 1rem;
+            padding: clamp(10px, 2vw, 12px) clamp(25px, 4vw, 30px);
+            font-size: clamp(0.95rem, 2vw, 1rem);
             cursor: pointer;
             width: 100%;
             border-radius: 5px;
@@ -537,6 +476,138 @@
 
         .login-btn:hover {
             background-color: #5a4ac4;
+        }
+
+        /* Estados y utilidades */
+        .char-counter {
+            text-align: right;
+            color: var(--secondary-color);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+            width: 100%;
+        }
+
+        /* Mejoras específicas para móviles */
+        @media (max-width: 768px) {
+            .journal-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-container {
+                padding: 20px 15px;
+            }
+            
+            .save-status {
+                position: relative;
+                bottom: auto;
+                right: auto;
+                margin-top: 15px;
+                text-align: center;
+                display: block;
+            }
+            
+            .modal-content {
+                margin: 10px;
+                max-height: 85vh;
+            }
+            
+            .detail-item {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .detail-label, .detail-value {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .journal-column {
+                padding: 20px 15px;
+            }
+            
+            .column-title {
+                font-size: 1.3rem;
+            }
+            
+            .reveal-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .modal-content {
+                padding: 25px 20px;
+            }
+            
+            .modal-title {
+                font-size: 1.6rem;
+            }
+            
+            .close-modal {
+                top: 10px;
+                right: 10px;
+            }
+        }
+
+        /* Para pantallas muy pequeñas */
+        @media (max-width: 360px) {
+            .page-title {
+                font-size: 1.6rem;
+            }
+            
+            .page-subtitle {
+                font-size: 0.95rem;
+            }
+            
+            .journal-column {
+                padding: 15px 12px;
+            }
+            
+            .modal-content {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Para tablets en orientación vertical */
+        @media (max-width: 1024px) and (orientation: portrait) {
+            .journal-grid {
+                gap: 25px;
+            }
+            
+            .journal-column {
+                min-height: 500px;
+            }
+        }
+
+        /* Ajustes para cuando el teclado está abierto en móviles */
+        @media (max-height: 600px) {
+            .journal-column {
+                min-height: 400px;
+            }
+            
+            .editable-area {
+                min-height: 300px;
+            }
+            
+            .modal-content {
+                max-height: 80vh;
+            }
+        }
+
+        /* Mejorar scroll en móviles */
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 3px;
         }
     </style>
 </head>
@@ -636,15 +707,15 @@ Este es tu espacio seguro. Todo lo que escribas se guardará automáticamente en
         </footer>
     </div>
 
-    <!-- Modal de reserva -->
+    <!-- Modal de reserva - COMPLETAMENTE RESPONSIVE -->
     <div class="modal-overlay" id="reservationModal">
         <div class="modal-content">
-            <button class="close-modal" id="closeModal">&times;</button>
+            <button class="close-modal" id="closeModal" aria-label="Cerrar">&times;</button>
             
             <h2 class="modal-title">Planes confirmados</h2>
             <p class="modal-subtitle">Un encuentro especial para reconectar</p>
             
-            <p>He pensado que sería bueno salir de la rutina y dedicarnos un tiempo especial. Por eso he organizado algo que espero que disfrutemos ambos.</p>
+            <p style="margin-bottom: clamp(15px, 3vw, 20px); line-height: 1.6;">He pensado que sería bueno salir de la rutina y dedicarnos un tiempo especial. Por eso he organizado algo que espero que disfrutemos ambos.</p>
             
             <div class="reservation-card">
                 <h3 class="reservation-title">Detalles de la reserva</h3>
@@ -668,11 +739,11 @@ Este es tu espacio seguro. Todo lo que escribas se guardará automáticamente en
                 </div>
             </div>
             
-            <p style="margin-top: 30px;">No necesitas preparar nada especial. Solo tu presencia y la disposición para disfrutar de una velada tranquila y significativa.</p>
+            <p style="margin-top: clamp(15px, 3vw, 30px); line-height: 1.6;">No necesitas preparar nada especial. Solo tu presencia y la disposición para disfrutar de una velada tranquila y significativa.</p>
             
-            <p style="margin-top: 40px; font-style: italic; text-align: center; color: #666;">
+            <p style="margin-top: clamp(25px, 4vw, 40px); font-style: italic; text-align: center; color: #666; line-height: 1.5;">
                 Con aprecio,<br>
-                <span style="color: var(--accent-color);">Tu novio</span>
+                <span style="color: var(--accent-color); font-weight: 500;">Tu novio</span>
             </p>
         </div>
     </div>
@@ -909,6 +980,25 @@ Este es tu espacio seguro. Todo lo que escribas se guardará automáticamente en
         }
 
         // ==============================================
+        // MANEJO RESPONSIVE DEL MODAL
+        // ==============================================
+        function adjustModalForMobile() {
+            const modal = document.getElementById('reservationModal');
+            const modalContent = modal.querySelector('.modal-content');
+            
+            if (window.innerWidth <= 768) {
+                // En móviles, asegurar que el modal no exceda el viewport
+                modalContent.style.maxHeight = '85vh';
+                modalContent.style.overflowY = 'auto';
+                
+                // Prevenir que el fondo se desplace
+                document.body.style.overflow = 'hidden';
+            } else {
+                modalContent.style.maxHeight = '90vh';
+            }
+        }
+
+        // ==============================================
         // EVENT LISTENERS
         // ==============================================
         document.addEventListener('DOMContentLoaded', function() {
@@ -951,6 +1041,7 @@ Este es tu espacio seguro. Todo lo que escribas se guardará automáticamente en
             document.getElementById('revealBtn').addEventListener('click', function() {
                 document.getElementById('reservationModal').style.display = 'flex';
                 document.body.style.overflow = 'hidden';
+                adjustModalForMobile();
             });
             
             // Configurar cierre de modal
@@ -959,9 +1050,19 @@ Este es tu espacio seguro. Todo lo que escribas se guardará automáticamente en
                 document.body.style.overflow = 'auto';
             });
             
+            // Cerrar modal al hacer clic fuera
             document.getElementById('reservationModal').addEventListener('click', function(e) {
                 if (e.target === this) {
                     this.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Cerrar modal con Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.getElementById('reservationModal').style.display = 'none';
+                    document.getElementById('loginModal').style.display = 'none';
                     document.body.style.overflow = 'auto';
                 }
             });
@@ -976,6 +1077,9 @@ Este es tu espacio seguro. Todo lo que escribas se guardará automáticamente en
             document.getElementById('resPlace').textContent = reservationDetails.place;
             document.getElementById('resDate').textContent = reservationDetails.date;
             document.getElementById('resTime').textContent = reservationDetails.time;
+            
+            // Ajustar modal cuando cambia el tamaño de la ventana
+            window.addEventListener('resize', adjustModalForMobile);
             
             // Placeholder animado
             const placeholderText = hisText.placeholder;
