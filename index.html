@@ -715,31 +715,31 @@ Este es tu espacio seguro. Todo lo que escribas se guardará automáticamente en
             <h2 class="modal-title">Planes confirmados</h2>
             <p class="modal-subtitle">Un encuentro especial para reconectar</p>
             
-            <p style="margin-bottom: clamp(15px, 3vw, 20px); line-height: 1.6;">He pensado que sería bueno salir de la rutina y dedicarnos un tiempo especial. Por eso he organizado algo que espero que disfrutemos ambos.</p>
+            <p style="margin-bottom: clamp(15px, 3vw, 20px); line-height: 1.6;">Como sabrás ya es 2 de diciembre, es decir nuestro "aniversario" y quiero dedicarnos un tiempo especial. Por eso he organizado algo que espero que disfrutemos ambos.</p>
             
             <div class="reservation-card">
                 <h3 class="reservation-title">Detalles de la reserva</h3>
                 <div class="reservation-details">
                     <div class="detail-item">
                         <span class="detail-label">Lugar:</span>
-                        <span class="detail-value" id="resPlace">The Observatory - Restaurante con vista panorámica</span>
+                        <span class="detail-value" id="resPlace">Cafetería Trapiche (Donde nos conocimos por primera vez)</span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Fecha:</span>
-                        <span class="detail-value" id="resDate">Viernes, 28 de junio</span>
+                        <span class="detail-value" id="resDate">Martes, 2 de diciembre/span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Hora:</span>
-                        <span class="detail-value" id="resTime">20:30 horas</span>
+                        <span class="detail-value" id="resTime">07:30 P.M.</span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Notas:</span>
-                        <span class="detail-value">Reserva bajo mi nombre. Código de confirmación: INT-2806</span>
+                        <span class="detail-value">Reserva bajo mi nombre.</span>
                     </div>
                 </div>
             </div>
             
-            <p style="margin-top: clamp(15px, 3vw, 30px); line-height: 1.6;">No necesitas preparar nada especial. Solo tu presencia y la disposición para disfrutar de una velada tranquila y significativa.</p>
+            <p style="margin-top: clamp(15px, 3vw, 30px); line-height: 1.6;">Espero podamos pasar un momento lindo, agradable y hablar de nosotros, de como han sido estos 6 meses juntos.</p>
             
             <p style="margin-top: clamp(25px, 4vw, 40px); font-style: italic; text-align: center; color: #666; line-height: 1.5;">
                 Con aprecio,<br>
@@ -747,7 +747,7 @@ Este es tu espacio seguro. Todo lo que escribas se guardará automáticamente en
             </p>
         </div>
     </div>
-
+<script src="sweetalert2.all.min.js"></script>
     <script>
         // ==============================================
         // CONFIGURACIÓN DE FIREBASE
@@ -975,7 +975,15 @@ Este es tu espacio seguro. Todo lo que escribas se guardará automáticamente en
             
             // Mostrar mensaje de bienvenida
             setTimeout(() => {
-                alert("Bienvenido a nuestro espacio íntimo. Todo lo que escribas aquí se guardará automáticamente en la nube, así podré leerlo después. Este es un lugar seguro para expresarte libremente.");
+                // alert("Bienvenido a nuestro espacio íntimo. Todo lo que escribas aquí se guardará automáticamente en la nube, así podré leerlo después. Este es un lugar seguro para expresarte libremente.");
+                Swal.fire({
+  position: "center",
+//   icon: "success",
+//   title: "Your work has been saved",
+  textContent: "Bienvenido a nuestro espacio íntimo. Todo lo que escribas aquí se guardará automáticamente en la nube, así podré leerlo después. Este es un lugar seguro para expresarte libremente.",
+  showConfirmButton: false,
+  timer: 1500
+});
             }, 500);
         }
 
@@ -1069,9 +1077,9 @@ Este es tu espacio seguro. Todo lo que escribas se guardará automáticamente en
             
             // Configurar datos de reserva
             const reservationDetails = {
-                place: "The Observatory - Restaurante con vista panorámica",
-                date: "Viernes, 28 de junio",
-                time: "20:30 horas"
+                place: "Cafetería Trapiche (Donde nos conocimos)",
+                date: "Martes, 2 de diciembre",
+                time: "07:30 P.M."
             };
             
             document.getElementById('resPlace').textContent = reservationDetails.place;
